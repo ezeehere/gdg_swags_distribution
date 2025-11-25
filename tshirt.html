@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDG Cloud | Claim Swag</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4285F4;
+            --bg: #F0F4F8;
+            --text: #202124;
+            --text-sub: #5F6368;
+            --card-bg: #ffffff;
+            --radius: 28px;
+        }
+
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- Main Card --- */
+        .app-container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: #fff;
+            padding: 40px 40px 20px 40px;
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            background: #E8F0FE;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        h1 { margin: 0; font-size: 2.2rem; letter-spacing: -0.5px; }
+        p { color: var(--text-sub); line-height: 1.6; margin-top: 12px; font-size: 1.1rem; }
+
+        /* --- Search Section --- */
+        .search-wrapper {
+            padding: 20px 50px 40px 50px;
+            position: relative;
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 24px;
+            color: #9AA0A6;
+            width: 24px;
+        }
+
+        input#search {
+            width: 100%;
+            padding: 22px 22px 22px 60px;
+            font-family: 'Google Sans', sans-serif;
+            font-size: 1.2rem;
+            border: 2px solid #F1F3F4;
+            border-radius: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #F8F9FA;
+            box-sizing: border-box;
+        }
+
+        input#search:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(66, 133, 244, 0.12);
+        }
+
+        /* --- Result List --- */
+        #results-container {
+            flex-grow: 1;
+            max-height: 350px;
+            overflow-y: auto;
+            margin: 0 30px 30px 30px;
+            padding: 5px;
+        }
+        
+        .user-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            margin-bottom: 12px;
+            background: #fff;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #F1F3F4;
+        }
+        
+        .user-card:hover {
+            background: #F8F9FA;
+            border-color: #DADCE0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .user-info strong { display: block; font-size: 1.1rem; color: var(--text); margin-bottom: 4px; }
+        .user-info small { color: var(--text-sub); font-size: 0.95rem; }
+        .arrow { color: #DADCE0; font-size: 1.2rem; }
+
+        /* --- Selection Panel --- */
+        #selection-view {
+            display: none;
+            padding: 40px 50px;
+            background: #fff;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            padding: 10px 0;
+            font-size: 1rem;
+        }
+
+        .user-greeting { font-size: 2rem; margin: 0 0 10px 0; color: var(--text); }
+
+        /* Size Chart Table */
+        .chart-container {
+            margin: 20px 0;
+            border-radius: 12px;
+            border: 1px solid #E8EAED;
+            overflow: hidden;
+        }
+        .size-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: center; }
+        .size-table thead { background: #4285F4; color: white; }
+        .size-table th, .size-table td { padding: 12px; border-bottom: 1px solid #E8EAED; }
+        .size-table th { font-weight: 500; }
+        .size-table td { color: var(--text-sub); }
+        .size-table tr:last-child td { border-bottom: none; }
+        .disclaimer { font-size: 0.75rem; color: #EA4335; text-align: center; margin-top: 8px; font-weight: 500; }
+
+        /* Size Grid */
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 25px 0;
+        }
+        .size-option { position: relative; }
+        .size-option input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+        .size-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 15px 0; border: 2px solid #E8EAED; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s; background: #fff;
+        }
+        .size-card span.letter { font-size: 1.1rem; font-weight: 700; color: var(--text-sub); }
+        .size-option input:checked + .size-card { border-color: var(--primary); background: #E8F0FE; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2); }
+        .size-option input:checked + .size-card span.letter { color: var(--primary); }
+
+        /* Action Button */
+        .cta-button {
+            width: 100%; background: var(--primary); color: white; border: none; padding: 20px;
+            border-radius: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3); margin-top: 10px;
+        }
+        .cta-button:disabled { background: #DADCE0; box-shadow: none; cursor: not-allowed; }
+        .cta-button:active { transform: scale(0.98); }
+
+        /* --- LOADER STYLES --- */
+        #loader {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 60px; height: 60px;
+            border: 5px solid #F1F3F4;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .fact-title {
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .fact-content {
+            font-size: 1.2rem;
+            color: var(--text);
+            max-width: 400px;
+            min-height: 80px;
+            line-height: 1.5;
+            animation: fadeText 0.5s ease-in-out;
+        }
+
+        @keyframes fadeText { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Success View */
+        #success-view { display: none; text-align: center; padding: 80px 40px; }
+        .success-icon { font-size: 5rem; margin-bottom: 30px; display: block; }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .app-container { border-radius: 20px; }
+            .header { padding: 30px 25px 10px 25px; }
+            .search-wrapper { padding: 20px 25px; }
+            #results-container { margin: 0 15px 15px 15px; }
+            #selection-view { padding: 20px 25px; }
+            .size-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            h1 { font-size: 1.8rem; }
+            .cta-button { padding: 16px; }
+            .fact-content { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="fact-title">Did You Know?</div>
+        <div class="fact-content" id="fact-text">Retrieving participant data from the cloud...</div>
+    </div>
+
+    <div id="search-view">
+        <div class="header">
+            <span class="badge">Tier 1 Achieved</span>
+            <h1>Claim Your Swag</h1>
+            <p>Congrats! Find your name below to select your T-shirt size.</p>
+        </div>
+
+        <div class="search-wrapper">
+            <div class="input-group">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="search" placeholder="Search your name...">
+            </div>
+        </div>
+
+        <div id="results-container"></div>
+    </div>
+
+    <div id="selection-view">
+        <button class="back-btn" onclick="goBack()">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Back to Search
+        </button>
+        <h2 class="user-greeting" id="greeting">Hello!</h2>
+        <p style="margin-bottom: 15px; font-size: 1rem;">Check the chart below and select your size carefully.</p>
+        
+        <div class="chart-container">
+            <table class="size-table">
+                <thead><tr><th>Size</th><th>Chest</th><th>Length</th></tr></thead>
+                <tbody>
+                    <tr><td>S</td><td>38"</td><td>24.5"</td></tr>
+                    <tr><td>M</td><td>40"</td><td>25.5"</td></tr>
+                    <tr><td>L</td><td>42"</td><td>26.5"</td></tr>
+                    <tr><td>XL</td><td>44"</td><td>27.5"</td></tr>
+                    <tr><td>2XL</td><td>46"</td><td>28.5"</td></tr>
+                    <tr><td>3XL</td><td>48"</td><td>29.5"</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="disclaimer">Sizes may rarely vary in the range of +/- 0.5 inches.</div>
+
+        <div class="size-grid">
+            <label class="size-option"><input type="radio" name="size" value="S"><div class="size-card"><span class="letter">S</span></div></label>
+            <label class="size-option"><input type="radio" name="size" value="M"><div class="size-card"><span class="letter">M</span></div></label>
+            <label class="size-option"><input type="radio" name="size" value="L"><div class="size-card"><span class="letter">L</span></div></label>
+            <label class="size-option"><input type="radio" name="size" value="XL"><div class="size-card"><span class="letter">XL</span></div></label>
+            <label class="size-option"><input type="radio" name="size" value="2XL"><div class="size-card"><span class="letter">2XL</span></div></label>
+            <label class="size-option"><input type="radio" name="size" value="3XL"><div class="size-card"><span class="letter">3XL</span></div></label>
+        </div>
+
+        <button id="submit-btn" class="cta-button">Confirm Selection</button>
+    </div>
+
+    <div id="success-view">
+        <span class="success-icon">🎉</span>
+        <h1>All Set!</h1>
+        <p>Your size has been recorded. See you at the swag distribution!</p>
+    </div>
+
+</div>
+
+<script>
+    // YOUR LIVE DEPLOYMENT URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNsBEW5U2-LhlcIvAfeGvQWmJkeVWt5hX4K6Udduw6hX_AYpPaaZ8omjacvXK-KLBf/exec";
+    
+    // --- FUN FACTS CONFIGURATION ---
+    const MIN_LOAD_TIME = 15000; // 10,000 milliseconds = 10 Seconds minimum wait
+    
+    const facts = [
+        "Around 150 students have applied from JIST for this campaign",
+        "There was only 99 completion in the last day. Completed 1 anyhow.",
+        "Ezaz is the best person to ever exist.",
+        "Ezaz is our heroo."    
+    ];
+
+    let factIndex = 0;
+    const factElement = document.getElementById('fact-text');
+    
+    // Rotate facts every 3.5 seconds
+    const factInterval = setInterval(() => {
+        factElement.style.animation = 'none';
+        factElement.offsetHeight; /* trigger reflow */
+        factElement.style.animation = 'fadeText 0.5s ease-in-out';
+        factElement.innerText = facts[factIndex];
+        factIndex = (factIndex + 1) % facts.length;
+    }, 3000);
+
+    // --------------------------------
+
+    let allUsers = [];
+    let selectedUserIndex = null;
+    let startTime = Date.now(); // Start timer immediately when script parses
+
+    // Helper function to hide loader with enforced delay
+    function finishLoading() {
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
+
+        setTimeout(() => {
+            clearInterval(factInterval); 
+            document.getElementById('loader').style.display = 'none';
+        }, remainingTime);
+    }
+
+    // 1. Load Data on Startup
+    window.onload = async function() {
+        // Reset start time on load just to be safe
+        startTime = Date.now();
+        
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=search&query=`); 
+            const json = await response.json();
+            
+            if (json.data) {
+                allUsers = json.data;
+            }
+            // Trigger finish sequence (will wait if needed)
+            finishLoading();
+            
+        } catch (error) {
+            console.error("Error loading data:", error);
+            // Even if error, we wait 10 seconds before hiding loader
+            // (You might want to show an error message instead, but this keeps the wait logic)
+            finishLoading();
+            alert("Error loading data. Please refresh.");
+        }
+    };
+
+    // 2. Instant Filtering
+    const searchInput = document.getElementById('search');
+    const resultsContainer = document.getElementById('results-container');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        resultsContainer.innerHTML = ''; 
+
+        if (query.length < 1) return;
+
+        const matches = allUsers.filter(user => user.name.toLowerCase().includes(query));
+
+        if (matches.length === 0) {
+            resultsContainer.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">No name found</div>';
+        } else {
+            matches.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.innerHTML = `
+                    <div class="user-info">
+                        <strong>${user.name}</strong>
+                        <small>${user.email}</small>
+                    </div>
+                    <div class="arrow">→</div>
+                `;
+                card.onclick = () => openSelection(user);
+                resultsContainer.appendChild(card);
+            });
+        }
+    });
+
+    // 3. UI Navigation
+    function openSelection(user) {
+        selectedUserIndex = user.rowIndex;
+        document.getElementById('greeting').innerText = `Hello, ${user.name.split(' ')[0]}`;
+        document.getElementById('search-view').style.display = 'none';
+        document.getElementById('selection-view').style.display = 'block';
+    }
+
+    function goBack() {
+        document.getElementById('selection-view').style.display = 'none';
+        document.getElementById('search-view').style.display = 'block';
+    }
+
+    // 4. Submission
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+        const sizeInput = document.querySelector('input[name="size"]:checked');
+        if (!sizeInput) {
+            alert("Please tap a size button first!");
+            return;
+        }
+
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+            await fetch(`${SCRIPT_URL}?action=update&rowIndex=${selectedUserIndex}&size=${sizeInput.value}`);
+            document.getElementById('selection-view').style.display = 'none';
+            document.getElementById('success-view').style.display = 'block';
+        } catch (error) {
+            alert("Something went wrong. Please try again.");
+            btn.innerText = "Confirm Selection";
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
